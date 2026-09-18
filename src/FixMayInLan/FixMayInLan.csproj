@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+
+    <!-- Giữ .NET 8 dù máy đang cài SDK .NET 10 -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- File khai báo quyền Administrator -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- Hỗ trợ màn hình có tỷ lệ DPI cao -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+
+    <RootNamespace>FixMayInLan</RootNamespace>
+    <AssemblyName>FixMayInLan</AssemblyName>
+    <Version>0.1.0</Version>
+<AssemblyVersion>0.1.0.0</AssemblyVersion>
+<FileVersion>0.1.0.0</FileVersion>
+
+<Product>Fix Máy In LAN</Product>
+
+<Description>
+  Công cụ chẩn đoán và xử lý lỗi máy in LAN
+</Description>
+
+<Copyright>
+  Copyright © 2026
+</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
