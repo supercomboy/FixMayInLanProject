@@ -10,11 +10,17 @@ public sealed class SystemToolsDialog : Form
     private static readonly Color Blue =
         Color.FromArgb(35, 99, 235);
 
+    private static readonly Color Danger =
+        Color.FromArgb(190, 40, 40);
+
     private static readonly Color TextSecondary =
         Color.FromArgb(100, 116, 139);
 
     private readonly ComputerNameService
         _computerNameService;
+
+    private readonly NetworkSharingService
+        _networkSharingService;
 
     private readonly IAppLogger _logger;
 
@@ -24,8 +30,29 @@ public sealed class SystemToolsDialog : Form
     private readonly Button
         _renameButton = new();
 
+    private readonly Button
+        _privateButton = new();
+
+    private readonly Button
+        _sharingButton = new();
+
+    private readonly Button
+        _passwordButton = new();
+
+    private readonly Button
+        _undoPasswordButton = new();
+
     private readonly Label
         _renameStatusLabel = new();
+
+    private readonly Label
+        _privateStatusLabel = new();
+
+    private readonly Label
+        _sharingStatusLabel = new();
+
+    private readonly Label
+        _passwordStatusLabel = new();
 
     public SystemToolsDialog(
         ComputerNameService computerNameService,
@@ -36,44 +63,53 @@ public sealed class SystemToolsDialog : Form
 
         _logger = logger;
 
+        _networkSharingService =
+            new NetworkSharingService(
+                new PowerShellRunner(),
+                new RegistryBackupService(),
+                computerNameService,
+                logger);
+
         Text = "Công cụ hệ thống";
 
         StartPosition =
             FormStartPosition.CenterParent;
 
-        MinimumSize = new Size(860, 620);
-        Size = new Size(940, 700);
+        MinimumSize =
+            new Size(900, 650);
 
-        Font = new Font("Segoe UI", 10F);
+        Size =
+            new Size(960, 760);
 
-        Panel header = CreateHeader();
+        Font =
+            new Font("Segoe UI", 10F);
+
+        Panel header =
+            CreateHeader();
 
         FlowLayoutPanel content =
-            CreateContentPanel();
+            new()
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                FlowDirection =
+                    FlowDirection.TopDown,
+                WrapContents = false,
+                Padding =
+                    new Padding(24, 20, 24, 20)
+            };
 
         content.Controls.Add(
-            CreateRenameComputerCard());
+            CreateRenameCard());
 
         content.Controls.Add(
-            CreateComingToolCard(
-                "Chuyển mạng Public → Private",
-                "Chuyển profile mạng đang hoạt động " +
-                "sang Private. Máy Domain sẽ bị chặn.",
-                "Sẽ bổ sung ở bước tiếp theo"));
+            CreatePrivateNetworkCard());
 
         content.Controls.Add(
-            CreateComingToolCard(
-                "Bật chia sẻ mạng LAN",
-                "Bật Network Discovery và " +
-                "File & Printer Sharing cho mạng Private.",
-                "Sẽ bổ sung ở bước tiếp theo"));
+            CreateLanSharingCard());
 
         content.Controls.Add(
-            CreateComingToolCard(
-                "Tắt Password Protected Sharing",
-                "Cho phép truy cập chia sẻ không cần " +
-                "mật khẩu. Đây là chức năng rủi ro cao.",
-                "Sẽ bổ sung ở bước tiếp theo"));
+            CreatePasswordSharingCard());
 
         Controls.Add(content);
         Controls.Add(header);
@@ -96,7 +132,7 @@ public sealed class SystemToolsDialog : Form
         {
             Text = "CÔNG CỤ HỆ THỐNG",
             AutoSize = true,
-            Location = new Point(24, 16),
+            Location = new Point(24, 15),
             Font =
                 new Font(
                     "Segoe UI Semibold",
@@ -107,8 +143,8 @@ public sealed class SystemToolsDialog : Form
         Label description = new()
         {
             Text =
-                "Các thao tác quản trị Windows " +
-                "hỗ trợ chia sẻ máy in trong LAN.",
+                "Cấu hình Windows phục vụ " +
+                "chia sẻ máy in trong LAN.",
 
             AutoSize = true,
             Location = new Point(26, 50),
@@ -122,58 +158,25 @@ public sealed class SystemToolsDialog : Form
         return header;
     }
 
-    private static FlowLayoutPanel
-        CreateContentPanel()
+    private Panel CreateRenameCard()
     {
-        return new FlowLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            AutoScroll = true,
-            FlowDirection =
-                FlowDirection.TopDown,
-            WrapContents = false,
-            Padding =
-                new Padding(24, 20, 24, 20)
-        };
-    }
+        Panel card = CreateCard(810, 178);
 
-    private Panel CreateRenameComputerCard()
-    {
-        Panel card = CreateCard(
-            810,
-            180);
+        card.Controls.Add(
+            CreateTitle("Đổi tên máy tính"));
 
-        Label title = CreateCardTitle(
-            "Đổi tên máy tính");
+        Label description = CreateDescription(
+            "Tên mới tối đa 15 ký tự. " +
+            "Cần khởi động lại Windows.",
+            50);
 
-        Label description = new()
-        {
-            Text =
-                "Tên mới có tối đa 15 ký tự, " +
-                "chỉ gồm chữ, số và dấu gạch ngang. " +
-                "Cần restart để áp dụng.",
+        Label currentName = CreateDescription(
+            $"Tên hiện tại: " +
+            $"{_computerNameService.CurrentComputerName}",
+            78);
 
-            Location = new Point(20, 50),
-            AutoSize = true,
-            ForeColor = TextSecondary
-        };
-
-        Label currentNameLabel = new()
-        {
-            Text =
-                $"Tên hiện tại: " +
-                $"{_computerNameService.CurrentComputerName}",
-
-            Location = new Point(20, 80),
-            AutoSize = true,
-            ForeColor = TextSecondary
-        };
-
-        _computerNameTextBox.Location =
-            new Point(20, 108);
-
-        _computerNameTextBox.Size =
-            new Size(360, 32);
+        _computerNameTextBox.SetBounds(
+            20, 108, 350, 32);
 
         _computerNameTextBox.MaxLength = 15;
 
@@ -183,45 +186,212 @@ public sealed class SystemToolsDialog : Form
         _computerNameTextBox.PlaceholderText =
             "Ví dụ: PC-KETOAN-01";
 
-        _renameButton.Text = "Đổi tên máy";
+        ConfigureButton(
+            _renameButton,
+            "Đổi tên máy",
+            Blue);
 
-        _renameButton.Location =
-            new Point(395, 106);
+        _renameButton.SetBounds(
+            385, 106, 140, 36);
 
-        _renameButton.Size =
-            new Size(135, 36);
+        ConfigureStatusLabel(
+            _renameStatusLabel,
+            "Chưa có thay đổi.",
+            146);
 
-        StylePrimaryButton(
-            _renameButton);
+        _renameButton.Click +=
+            async (_, _) =>
+            {
+                await RenameComputerAsync();
+            };
 
-        _renameStatusLabel.Location =
-            new Point(20, 146);
-
-        _renameStatusLabel.AutoSize = true;
-
-        _renameStatusLabel.ForeColor =
-            TextSecondary;
-
-        _renameStatusLabel.Text =
-            "Chưa có thay đổi.";
-
-        _renameButton.Click += async (_, _) =>
-        {
-            await RenameComputerAsync();
-        };
-
-        card.Controls.Add(title);
         card.Controls.Add(description);
-        card.Controls.Add(currentNameLabel);
+        card.Controls.Add(currentName);
+        card.Controls.Add(_computerNameTextBox);
+        card.Controls.Add(_renameButton);
+        card.Controls.Add(_renameStatusLabel);
+
+        return card;
+    }
+
+    private Panel CreatePrivateNetworkCard()
+    {
+        Panel card = CreateCard(810, 135);
 
         card.Controls.Add(
-            _computerNameTextBox);
+            CreateTitle(
+                "Chuyển mạng Public → Private"));
 
         card.Controls.Add(
-            _renameButton);
+            CreateDescription(
+                "Chỉ thay đổi profile mạng đang hoạt động. " +
+                "Máy Domain sẽ bị chặn.",
+                50));
+
+        ConfigureButton(
+            _privateButton,
+            "Chuyển sang Private",
+            Blue);
+
+        _privateButton.SetBounds(
+            575, 42, 205, 38);
+
+        ConfigureStatusLabel(
+            _privateStatusLabel,
+            "Chưa kiểm tra.",
+            92);
+
+        _privateButton.Click +=
+            async (_, _) =>
+            {
+                DialogResult answer =
+                    MessageBox.Show(
+                        "Ứng dụng sẽ chạy:\r\n\r\n" +
+                        "Set-NetConnectionProfile " +
+                        "-NetworkCategory Private\r\n\r\n" +
+                        "Chỉ tiếp tục nếu đây là mạng LAN tin cậy.",
+                        "Xác nhận đổi network profile",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button2);
+
+                if (answer != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                await RunActionAsync(
+                    _privateButton,
+                    _privateStatusLabel,
+                    "Đang chuyển network profile...",
+                    _networkSharingService
+                        .ChangePublicToPrivateAsync,
+                    "Đã chuyển sang Private.");
+            };
+
+        card.Controls.Add(_privateButton);
+        card.Controls.Add(_privateStatusLabel);
+
+        return card;
+    }
+
+    private Panel CreateLanSharingCard()
+    {
+        Panel card = CreateCard(810, 135);
 
         card.Controls.Add(
-            _renameStatusLabel);
+            CreateTitle(
+                "Bật chia sẻ mạng LAN"));
+
+        card.Controls.Add(
+            CreateDescription(
+                "Bật Network Discovery, File & Printer " +
+                "Sharing và firewall rule cho Private.",
+                50));
+
+        ConfigureButton(
+            _sharingButton,
+            "Bật chia sẻ LAN",
+            Blue);
+
+        _sharingButton.SetBounds(
+            575, 42, 205, 38);
+
+        ConfigureStatusLabel(
+            _sharingStatusLabel,
+            "Yêu cầu mạng Private.",
+            92);
+
+        _sharingButton.Click +=
+            async (_, _) =>
+            {
+                DialogResult answer =
+                    MessageBox.Show(
+                        "Ứng dụng sẽ:\r\n\r\n" +
+                        "• Khởi động dịch vụ Network Discovery\r\n" +
+                        "• Bật File & Printer Sharing\r\n" +
+                        "• Chỉ mở firewall cho profile Private\r\n\r\n" +
+                        "Bạn muốn tiếp tục?",
+                        "Xác nhận bật chia sẻ LAN",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button2);
+
+                if (answer != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                await RunActionAsync(
+                    _sharingButton,
+                    _sharingStatusLabel,
+                    "Đang bật chia sẻ mạng LAN...",
+                    _networkSharingService
+                        .EnableLanSharingAsync,
+                    "Đã bật chia sẻ cho mạng Private.");
+            };
+
+        card.Controls.Add(_sharingButton);
+        card.Controls.Add(_sharingStatusLabel);
+
+        return card;
+    }
+
+    private Panel CreatePasswordSharingCard()
+    {
+        Panel card = CreateCard(810, 170);
+
+        card.Controls.Add(
+            CreateTitle(
+                "Tắt Password Protected Sharing"));
+
+        Label warning = CreateDescription(
+            "RỦI RO CAO: Cho phép Guest/anonymous tiếp cận " +
+            "tài nguyên chia sẻ. Chỉ dùng trong LAN tin cậy.",
+            50);
+
+        warning.ForeColor =
+            Color.FromArgb(173, 103, 0);
+
+        ConfigureButton(
+            _passwordButton,
+            "Tắt bảo vệ mật khẩu",
+            Danger);
+
+        _passwordButton.SetBounds(
+            575, 42, 205, 38);
+
+        ConfigureButton(
+            _undoPasswordButton,
+            "Hoàn tác",
+            Color.FromArgb(71, 85, 105));
+
+        _undoPasswordButton.SetBounds(
+            575, 88, 205, 36);
+
+        _undoPasswordButton.Visible = false;
+
+        ConfigureStatusLabel(
+            _passwordStatusLabel,
+            "Đang bật bảo vệ mật khẩu.",
+            132);
+
+        _passwordButton.Click +=
+            async (_, _) =>
+            {
+                await DisablePasswordSharingAsync();
+            };
+
+        _undoPasswordButton.Click +=
+            async (_, _) =>
+            {
+                await UndoPasswordSharingAsync();
+            };
+
+        card.Controls.Add(warning);
+        card.Controls.Add(_passwordButton);
+        card.Controls.Add(_undoPasswordButton);
+        card.Controls.Add(_passwordStatusLabel);
 
         return card;
     }
@@ -243,150 +413,148 @@ public sealed class SystemToolsDialog : Form
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning);
 
-            _computerNameTextBox.Focus();
             return;
         }
 
+        DialogResult answer =
+            MessageBox.Show(
+                $"Đổi tên máy thành " +
+                $"'{newName.ToUpperInvariant()}'?\r\n\r\n" +
+                "Cần restart để áp dụng.",
+                "Xác nhận đổi tên",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+        if (answer != DialogResult.Yes)
+        {
+            return;
+        }
+
+        await RunActionAsync(
+            _renameButton,
+            _renameStatusLabel,
+            "Đang đổi tên máy...",
+            cancellationToken =>
+                _computerNameService.RenameAsync(
+                    newName,
+                    cancellationToken),
+            "Đã đổi tên. Hãy restart Windows.");
+    }
+
+    private async Task DisablePasswordSharingAsync()
+    {
+        DialogResult firstAnswer =
+            MessageBox.Show(
+                "Tắt Password Protected Sharing sẽ làm giảm " +
+                "bảo mật của Windows.\r\n\r\n" +
+                "Người trong LAN có thể thử truy cập tài nguyên " +
+                "chia sẻ mà không cần tài khoản/mật khẩu.\r\n\r\n" +
+                "Bạn có hiểu rủi ro và muốn tiếp tục?",
+                "Cảnh báo bảo mật",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+        if (firstAnswer != DialogResult.Yes)
+        {
+            return;
+        }
+
+        DialogResult secondAnswer =
+            MessageBox.Show(
+                "XÁC NHẬN LẦN CUỐI\r\n\r\n" +
+                "Chỉ sử dụng trên mạng Private tin cậy. " +
+                "Không sử dụng tại Wi-Fi công cộng.\r\n\r\n" +
+                "Tiếp tục tắt bảo vệ mật khẩu?",
+                "Xác nhận rủi ro",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+        if (secondAnswer != DialogResult.Yes)
+        {
+            return;
+        }
+
+        await RunActionAsync(
+            _passwordButton,
+            _passwordStatusLabel,
+            "Đang sao lưu và thay đổi Registry...",
+            _networkSharingService
+                .DisablePasswordProtectedSharingAsync,
+            "Password Protected Sharing: OFF.");
+
+        _undoPasswordButton.Visible = true;
+
+        MessageBox.Show(
+            "Đã tắt Password Protected Sharing.\r\n\r\n" +
+            "Windows 11 mới có thể vẫn chặn SMB Guest do " +
+            "yêu cầu SMB signing. Không nên tắt thêm các " +
+            "tính năng bảo mật khác nếu không thật sự cần.",
+            "Đã thay đổi",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning);
+    }
+
+    private async Task UndoPasswordSharingAsync()
+    {
+        await RunActionAsync(
+            _undoPasswordButton,
+            _passwordStatusLabel,
+            "Đang khôi phục Registry...",
+            _ =>
+                _networkSharingService
+                    .UndoPasswordProtectedSharingAsync(),
+            "Đã khôi phục bảo vệ mật khẩu.");
+
+        _undoPasswordButton.Visible = false;
+    }
+
+    private async Task RunActionAsync(
+        Button button,
+        Label statusLabel,
+        string runningText,
+        Func<CancellationToken, Task> action,
+        string successText)
+    {
+        button.Enabled = false;
+        UseWaitCursor = true;
+
+        statusLabel.Text = runningText;
+        statusLabel.ForeColor = TextSecondary;
+
         try
         {
-            if (_computerNameService
-                .IsDomainJoined())
-            {
-                MessageBox.Show(
-                    "Máy tính đang thuộc Domain.\r\n\r\n" +
-                    "Việc đổi tên cần được thực hiện " +
-                    "bởi quản trị viên Domain.",
-                    "Không được phép đổi tên",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+            await action(CancellationToken.None);
 
-                return;
-            }
+            statusLabel.Text = successText;
+            statusLabel.ForeColor = Color.SeaGreen;
 
-            DialogResult confirmation =
-                MessageBox.Show(
-                    $"Tên hiện tại:\r\n" +
-                    $"{_computerNameService.CurrentComputerName}" +
-                    "\r\n\r\n" +
-                    $"Tên mới:\r\n" +
-                    $"{newName.ToUpperInvariant()}" +
-                    "\r\n\r\n" +
-                    "Tên mới chỉ có hiệu lực sau khi " +
-                    "khởi động lại Windows.\r\n\r\n" +
-                    "Bạn muốn tiếp tục?",
-                    "Xác nhận đổi tên máy",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button2);
-
-            if (confirmation != DialogResult.Yes)
-            {
-                return;
-            }
-
-            SetRenameBusy(true);
-
-            _renameStatusLabel.Text =
-                "Đang đổi tên máy tính...";
-
-            await _computerNameService
-                .RenameAsync(newName);
-
-            _renameStatusLabel.Text =
-                $"Đã đặt tên mới: " +
-                $"{newName.ToUpperInvariant()}. " +
-                "Đang chờ restart.";
-
-            _renameStatusLabel.ForeColor =
-                Color.SeaGreen;
-
-            _renameButton.Enabled = false;
-            _computerNameTextBox.Enabled = false;
-
-            MessageBox.Show(
-                "Windows đã chấp nhận tên máy mới." +
-                "\r\n\r\n" +
-                $"Tên mới: " +
-                $"{newName.ToUpperInvariant()}" +
-                "\r\n\r\n" +
-                "Hãy lưu công việc đang làm và " +
-                "khởi động lại Windows để hoàn tất.",
-                "Đổi tên thành công",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            _logger.Success(successText);
         }
         catch (Exception exception)
         {
-            _logger.Error(
-                $"Đổi tên máy thất bại: " +
-                $"{exception.Message}");
+            statusLabel.Text =
+                "Thao tác thất bại.";
 
-            _renameStatusLabel.Text =
-                "Đổi tên máy thất bại.";
-
-            _renameStatusLabel.ForeColor =
+            statusLabel.ForeColor =
                 Color.Firebrick;
 
+            _logger.Error(
+                exception.Message);
+
             MessageBox.Show(
-                "Không thể đổi tên máy tính." +
-                "\r\n\r\n" +
                 exception.Message,
-                "Đổi tên thất bại",
+                "Không thể hoàn tất",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
         }
         finally
         {
-            if (_computerNameTextBox.Enabled)
-            {
-                SetRenameBusy(false);
-            }
+            button.Enabled = true;
+            UseWaitCursor = false;
         }
-    }
-
-    private void SetRenameBusy(bool busy)
-    {
-        UseWaitCursor = busy;
-
-        _renameButton.Enabled = !busy;
-
-        _computerNameTextBox.Enabled =
-            !busy;
-    }
-
-    private static Panel CreateComingToolCard(
-        string titleText,
-        string descriptionText,
-        string buttonText)
-    {
-        Panel card = CreateCard(
-            810,
-            118);
-
-        Label title =
-            CreateCardTitle(titleText);
-
-        Label description = new()
-        {
-            Text = descriptionText,
-            Location = new Point(20, 50),
-            AutoSize = true,
-            ForeColor = TextSecondary
-        };
-
-        Button button = new()
-        {
-            Text = buttonText,
-            Location = new Point(575, 43),
-            Size = new Size(205, 38),
-            Enabled = false
-        };
-
-        card.Controls.Add(title);
-        card.Controls.Add(description);
-        card.Controls.Add(button);
-
-        return card;
     }
 
     private static Panel CreateCard(
@@ -399,12 +567,11 @@ public sealed class SystemToolsDialog : Form
             Height = height,
             BackColor = Color.White,
             Margin =
-                new Padding(0, 0, 0, 14),
-            Padding = new Padding(20)
+                new Padding(0, 0, 0, 14)
         };
     }
 
-    private static Label CreateCardTitle(
+    private static Label CreateTitle(
         string text)
     {
         return new Label
@@ -420,14 +587,40 @@ public sealed class SystemToolsDialog : Form
         };
     }
 
-    private static void StylePrimaryButton(
-        Button button)
+    private static Label CreateDescription(
+        string text,
+        int top)
     {
+        return new Label
+        {
+            Text = text,
+            Location = new Point(20, top),
+            AutoSize = true,
+            MaximumSize = new Size(530, 0),
+            ForeColor = TextSecondary
+        };
+    }
+
+    private static void ConfigureStatusLabel(
+        Label label,
+        string text,
+        int top)
+    {
+        label.Text = text;
+        label.Location = new Point(20, top);
+        label.AutoSize = true;
+        label.ForeColor = TextSecondary;
+    }
+
+    private static void ConfigureButton(
+        Button button,
+        string text,
+        Color background)
+    {
+        button.Text = text;
         button.FlatStyle = FlatStyle.Flat;
-
         button.FlatAppearance.BorderSize = 0;
-
-        button.BackColor = Blue;
+        button.BackColor = background;
         button.ForeColor = Color.White;
         button.Cursor = Cursors.Hand;
     }

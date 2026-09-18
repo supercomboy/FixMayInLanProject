@@ -38,6 +38,7 @@ public sealed class MainForm : Form
     // =========================================================
 
     private readonly Panel _headerPanel = new();
+    private readonly PictureBox _logoPictureBox = new();
 
     private readonly Label
         _computerInfoLabel = new();
@@ -48,8 +49,8 @@ public sealed class MainForm : Form
     private readonly Button
         _systemToolsButton = new();
 
-    private readonly Button
-        _themeButton = new();
+ private readonly Button _clientToolsButton = new();
+private readonly Button _themeButton = new();
 
     // =========================================================
     // WIZARD
@@ -101,7 +102,7 @@ public sealed class MainForm : Form
         _logger.EntryWritten +=
             LoggerOnEntryWritten;
 
-        Text = "Fix Máy In LAN";
+        Text = "Tool Fix In LAN";
 
         StartPosition =
             FormStartPosition.CenterScreen;
@@ -348,23 +349,71 @@ public sealed class MainForm : Form
 
         _headerPanel.Padding =
             new Padding(24, 0, 24, 0);
+            // -----------------------------------------------------
+// LOGO ỨNG DỤNG
+// -----------------------------------------------------
 
-        Label appName = new()
-        {
-            Text = "FIX MÁY IN LAN",
+_logoPictureBox.Size = new Size(44, 44);
+_logoPictureBox.Location = new Point(24, 20);
+_logoPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+_logoPictureBox.BackColor = Color.Transparent;
+_logoPictureBox.TabStop = false;
 
-            AutoSize = true,
+string logoPath = Path.Combine(
+    AppContext.BaseDirectory,
+    "Assets",
+    "logo.png");
 
-            ForeColor = Color.White,
+try
+{
+    if (File.Exists(logoPath))
+    {
+        // Tạo bản sao để không khóa file logo.png.
+        using Image sourceLogo =
+            Image.FromFile(logoPath);
 
-            Font =
-                new Font(
-                    "Segoe UI Semibold",
-                    17F),
+        _logoPictureBox.Image =
+            new Bitmap(sourceLogo);
+    }
+    else
+    {
+        _logger.Warning(
+            $"Không tìm thấy logo: {logoPath}");
+    }
+}
+catch (Exception exception)
+{
+    _logger.Warning(
+        $"Không thể tải logo ứng dụng: " +
+        $"{exception.Message}");
+}
 
-            Location =
-                new Point(24, 22)
-        };
+   Label appName = new()
+{
+    Text = "FIX IN LAN BY",
+    AutoSize = true,
+    ForeColor = Color.White,
+    Font = new Font(
+        "Segoe UI Semibold",
+        20F),
+    };
+const int headerHeight = 84;
+const int leftMargin = 24;
+const int brandSpacing = 10;
+
+// Lấy kích thước thực tế của tên ứng dụng.
+Size appNameSize =
+    appName.GetPreferredSize(Size.Empty);
+
+// Căn giữa tên ứng dụng theo chiều dọc.
+appName.Location = new Point(
+    leftMargin,
+    (headerHeight - appNameSize.Height) / 2);
+
+// Đặt logo bên phải tên ứng dụng.
+_logoPictureBox.Location = new Point(
+    leftMargin + appNameSize.Width + brandSpacing,
+    (headerHeight - _logoPictureBox.Height) / 2 + 3);
 
         // -----------------------------------------------------
         // THÔNG TIN MÁY
@@ -410,45 +459,47 @@ public sealed class MainForm : Form
         // NÚT CÔNG CỤ HỆ THỐNG
         // -----------------------------------------------------
 
-        _systemToolsButton.AutoSize = false;
+        _clientToolsButton.Text = "Máy Trạm";
+_clientToolsButton.Size = new Size(110, 36);
+_clientToolsButton.FlatStyle = FlatStyle.Flat;
+_clientToolsButton.FlatAppearance.BorderSize = 1;
+_clientToolsButton.FlatAppearance.BorderColor =
+    Color.FromArgb(14, 165, 233);
+_clientToolsButton.BackColor =
+    Color.FromArgb(15, 23, 42);
+_clientToolsButton.ForeColor =
+    Color.FromArgb(125, 211, 252);
+_clientToolsButton.Font =
+    new Font("Segoe UI Semibold", 9F);
+_clientToolsButton.Cursor = Cursors.Hand;
+_clientToolsButton.Anchor =
+    AnchorStyles.Top | AnchorStyles.Right;
 
-        _systemToolsButton.Text =
-            "Công cụ hệ thống";
+_clientToolsButton.Click += async (_, _) =>
+{
+    using ClientPrinterDialog dialog = new();
 
-        _systemToolsButton.Size =
-            new Size(160, 32);
+    dialog.ShowDialog(this);
 
-        _systemToolsButton.Font =
-            new Font(
-                "Segoe UI Semibold",
-                9F);
-
-        _systemToolsButton.TextAlign =
-            ContentAlignment.MiddleCenter;
-
-        _systemToolsButton.FlatStyle =
-            FlatStyle.Flat;
-
-        _systemToolsButton
-            .FlatAppearance
-            .BorderSize = 1;
-
-        _systemToolsButton
-            .FlatAppearance
-            .BorderColor =
-                Color.FromArgb(79, 96, 122);
-
-        _systemToolsButton
-            .UseVisualStyleBackColor = false;
-
-        _systemToolsButton.BackColor =
-            Color.FromArgb(45, 60, 82);
-
-        _systemToolsButton.ForeColor =
-            Color.White;
-
-        _systemToolsButton.Cursor =
-            Cursors.Hand;
+    // Làm mới danh sách máy in trên màn hình chính
+    // sau khi đóng cửa sổ Máy Trạm.
+    await _printerSelectionPanel.LoadPrintersAsync();
+};
+       _systemToolsButton.Text = "Máy Chủ";
+_systemToolsButton.Size = new Size(110, 36);
+_systemToolsButton.FlatStyle = FlatStyle.Flat;
+_systemToolsButton.FlatAppearance.BorderSize = 1;
+_systemToolsButton.FlatAppearance.BorderColor =
+    Color.FromArgb(14, 165, 233);
+_systemToolsButton.BackColor =
+    Color.FromArgb(15, 23, 42);
+_systemToolsButton.ForeColor =
+    Color.FromArgb(125, 211, 252);
+_systemToolsButton.Font =
+    new Font("Segoe UI Semibold", 9F);
+_systemToolsButton.Cursor = Cursors.Hand;
+_systemToolsButton.Anchor =
+    AnchorStyles.Top | AnchorStyles.Right;
 
         _systemToolsButton.TabStop = false;
 
@@ -525,7 +576,7 @@ public sealed class MainForm : Form
         // -----------------------------------------------------
         // THÊM CONTROLS
         // -----------------------------------------------------
-
+        _headerPanel.Controls.Add(_logoPictureBox);
         _headerPanel.Controls.Add(appName);
 
         _headerPanel.Controls.Add(
@@ -533,6 +584,8 @@ public sealed class MainForm : Form
 
         _headerPanel.Controls.Add(
             _environmentBadgeLabel);
+
+        _headerPanel.Controls.Add(_clientToolsButton);    
 
         _headerPanel.Controls.Add(
             _systemToolsButton);
@@ -542,7 +595,11 @@ public sealed class MainForm : Form
 
         _systemToolsButton.BringToFront();
         _themeButton.BringToFront();
+        _clientToolsButton.BringToFront();
         _environmentBadgeLabel.BringToFront();
+
+        _logoPictureBox.BringToFront();
+        appName.BringToFront();
 
         _headerPanel.Resize += (_, _) =>
         {
@@ -553,61 +610,79 @@ public sealed class MainForm : Form
 
         return _headerPanel;
     }
+private void PositionHeaderControls()
+{
+    const int rightMargin = 24;
+    const int spacing = 10;
+    const int buttonTop = 8;
 
-    private void PositionHeaderControls()
+    int headerWidth = _headerPanel.ClientSize.Width;
+
+    if (headerWidth <= 0)
     {
-        const int rightMargin = 24;
-        const int spacing = 10;
-
-        // Nút Theme ngoài cùng bên phải.
-        _themeButton.Location =
-            new Point(
-                _headerPanel.ClientSize.Width -
-                _themeButton.Width -
-                rightMargin,
-                8);
-
-        int rightEdge =
-            _themeButton.Left -
-            spacing;
-
-        // Badge Workgroup, Domain hoặc Server.
-        if (_environmentBadgeLabel.Visible)
-        {
-            _environmentBadgeLabel.Location =
-                new Point(
-                    rightEdge -
-                    _environmentBadgeLabel.Width,
-                    11);
-
-            rightEdge =
-                _environmentBadgeLabel.Left -
-                spacing;
-        }
-
-        // Nút Công cụ hệ thống.
-        _systemToolsButton.Location =
-            new Point(
-                rightEdge -
-                _systemToolsButton.Width,
-                8);
-
-        // Dòng thông tin máy tính.
-        const int informationLeft = 300;
-
-        int informationWidth =
-            Math.Max(
-                250,
-                _headerPanel.ClientSize.Width -
-                informationLeft -
-                rightMargin);
-
-        _computerInfoLabel.SetBounds(
-            informationLeft,
-            44,
-            informationWidth,
-            24);
+        return;
     }
+
+    // Dark/Light nằm ngoài cùng bên phải.
+    _themeButton.Location = new Point(
+        headerWidth -
+        rightMargin -
+        _themeButton.Width,
+        buttonTop + 2);
+
+    // WORKGROUP nằm bên trái Dark/Light.
+    int badgeTop = buttonTop +
+        (_systemToolsButton.Height -
+         _environmentBadgeLabel.Height) / 2;
+
+    _environmentBadgeLabel.Location = new Point(
+        _themeButton.Left -
+        spacing -
+        _environmentBadgeLabel.Width,
+        badgeTop);
+
+    // Máy Trạm nằm bên trái WORKGROUP.
+    _clientToolsButton.Location = new Point(
+        _environmentBadgeLabel.Left -
+        spacing -
+        _clientToolsButton.Width,
+        buttonTop);
+
+    // Máy Chủ nằm bên trái Máy Trạm.
+    _systemToolsButton.Location = new Point(
+        _clientToolsButton.Left -
+        spacing -
+        _systemToolsButton.Width,
+        buttonTop);
+
+    // Dòng thông tin hệ thống nằm ở hàng dưới, căn phải.
+    const int computerInfoLeft = 260;
+    const int computerInfoTop = 48;
+
+    int computerInfoRight =
+        headerWidth - rightMargin;
+
+    int computerInfoWidth = Math.Max(
+        100,
+        computerInfoRight - computerInfoLeft);
+
+    _computerInfoLabel.Location = new Point(
+        computerInfoLeft,
+        computerInfoTop);
+
+    _computerInfoLabel.Size = new Size(
+        computerInfoWidth,
+        24);
+
+    _computerInfoLabel.TextAlign =
+        ContentAlignment.MiddleRight;
+
+    _computerInfoLabel.BringToFront();
+    _systemToolsButton.BringToFront();
+    _clientToolsButton.BringToFront();
+    _environmentBadgeLabel.BringToFront();
+    _themeButton.BringToFront();
+}
 
     // =========================================================
     // ĐỌC THÔNG TIN WINDOWS

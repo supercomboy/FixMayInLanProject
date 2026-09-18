@@ -10,15 +10,15 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("FixMayInLan")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("ToolFixInLan")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("\r\n  Copyright © 2026\r\n")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("\r\n  Công cụ chẩn đoán và xử lý lỗi máy in LAN\r\n")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0")]
-[assembly: System.Reflection.AssemblyProductAttribute("Fix Máy In LAN")]
-[assembly: System.Reflection.AssemblyTitleAttribute("FixMayInLan")]
-[assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+648b4643f952834eef1befbadbec42779998379e")]
+[assembly: System.Reflection.AssemblyProductAttribute("Tool Fix In LAN")]
+[assembly: System.Reflection.AssemblyTitleAttribute("ToolFixInLan")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
 

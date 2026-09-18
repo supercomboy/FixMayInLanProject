@@ -1,8 +1,3 @@
-F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\FixMayInLan.exe
-F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\FixMayInLan.deps.json
-F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\FixMayInLan.runtimeconfig.json
-F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\FixMayInLan.dll
-F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\FixMayInLan.pdb
 F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\System.Management.dll
 F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\System.ServiceProcess.ServiceController.dll
 F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\runtimes\win\lib\net8.0\System.Management.dll
@@ -13,8 +8,14 @@ F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayI
 F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.AssemblyInfo.cs
 F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.csproj.CoreCompileInputs.cache
 F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayIn.BA72F7C2.Up2Date
-F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.dll
-F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\refint\FixMayInLan.dll
-F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.pdb
 F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.genruntimeconfig.cache
-F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\ref\FixMayInLan.dll
+F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\ToolFixInLan.exe
+F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\ToolFixInLan.deps.json
+F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\ToolFixInLan.runtimeconfig.json
+F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\ToolFixInLan.dll
+F:\Project\FixMayInLanProject\src\FixMayInLan\bin\Release\net8.0-windows\ToolFixInLan.pdb
+F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\FixMayInLan.sourcelink.json
+F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\ToolFixInLan.dll
+F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\refint\ToolFixInLan.dll
+F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\ToolFixInLan.pdb
+F:\Project\FixMayInLanProject\src\FixMayInLan\obj\Release\net8.0-windows\ref\ToolFixInLan.dll

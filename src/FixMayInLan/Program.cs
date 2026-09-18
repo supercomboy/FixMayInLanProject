@@ -46,7 +46,16 @@ internal static class Program
             };
 
         logger.Info(
-            "Đang khởi động Fix Máy In LAN.");
+            "Đang khởi động Tool Fix In LAN.");
+            using PasswordDialog passwordDialog = new();
+
+DialogResult loginResult =
+    passwordDialog.ShowDialog();
+
+if (loginResult != DialogResult.OK)
+{
+    return;
+}
 
         Application.Run(
             new MainForm(logger));
